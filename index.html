@@ -1,0 +1,390 @@
+<HTML>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rajputana Five Star Hotel - Integrated Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Poppins:wght@300;400;600&display=swap');
+        .hotel-title { font-family: 'Cinzel', serif; }
+        body { font-family: 'Poppins', sans-serif; }
+
+        /* ================= PERFECT PRINT STYLES ================= */
+        @media print {
+            /* Pure page ki sabhi cheezon ko hide karein */
+            body * {
+                visibility: hidden !important;
+            }
+            /* Sirf billing aur print area ko screen par visible karein */
+            #print-area, #print-area * {
+                visibility: visible !important;
+            }
+            /* Print area ko top-left corner me adjust karein */
+            #print-area {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100% !important;
+                max-width: 450px !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            /* Print ke waqt buttons ko chhipane ke liye */
+            .print-hidden-element {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-amber-50/40 text-gray-800">
+
+    <header class="bg-gradient-to-r from-amber-800 to-amber-950 text-white text-center py-6 shadow-xl border-b-4 border-amber-600">
+        <h1 class="hotel-title text-4xl font-extrabold tracking-wider text-amber-300">THE RAJPUTANA FIVE STAR HOTEL</h1>
+        <p class="text-sm tracking-widest uppercase text-amber-100/80 mt-1">Luxury & Tradition Beyond Comparison</p>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        
+        <div class="lg:col-span-2 space-y-6">
+            
+            <div id="room-status-section" class="bg-white rounded-xl shadow-md p-6 border border-amber-100">
+                <h3 class="text-xl font-bold text-amber-900 mb-4 border-b pb-2">🏨 Live Room Status Dashboard</h3>
+                <div id="rooms-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3"></div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border border-amber-100">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="text-2xl font-bold text-amber-900">Royal Menu Card (350+ Dishes)</h2>
+                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full border border-green-300">
+                        💧 Mineral Water: FREE
+                    </span>
+                </div>
+
+                <div class="flex gap-2 overflow-x-auto pb-3 mb-6">
+                    <button onclick="filterMenu('all')" class="bg-amber-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-800 transition">All</button>
+                    <button onclick="filterMenu('Rajputana Special')" class="bg-amber-100 text-amber-800 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">Rajputana Special</button>
+                    <button onclick="filterMenu('Main Course')" class="bg-amber-100 text-amber-800 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">Main Course</button>
+                    <button onclick="filterMenu('Starters')" class="bg-amber-100 text-amber-800 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">Starters</button>
+                    <button onclick="filterMenu('Desserts')" class="bg-amber-100 text-amber-800 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">Desserts</button>
+                    <button onclick="filterMenu('Beverages')" class="bg-amber-100 text-amber-800 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition">Beverages</button>
+                </div>
+
+                <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2"></div>
+            </div>
+
+        </div>
+
+        <div id="print-area" class="bg-white rounded-xl shadow-md p-6 border border-amber-100 h-fit sticky top-6">
+            
+            <div id="bill-print-header" class="text-center mb-4 border-b-2 border-dashed border-gray-400 pb-3">
+                <h1 class="hotel-title text-xl font-bold tracking-wide">THE RAJPUTANA FIVE STAR HOTEL</h1>
+                <p class="text-xs uppercase tracking-wider text-gray-600">Luxury & Tradition Beyond Comparison</p>
+                <div class="text-[12px] font-medium text-gray-700 mt-3 text-left space-y-1">
+                    <p id="print-date">Date: </p>
+                    <p id="print-room-text">Room No: </p>
+                    <p id="print-name-text">Guest Name: </p>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold text-amber-900 mb-4 border-b pb-2 print-hidden-element">Order & Billing</h2>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4 print-hidden-element">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">SELECT ROOM</label>
+                    <select id="room-number" onchange="updatePrintDetails()" class="w-full p-2 border border-amber-200 rounded-lg bg-amber-50/50 focus:outline-none focus:border-amber-600"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">GUEST NAME</label>
+                    <input type="text" id="guest-name" value="Valued Guest" oninput="updatePrintDetails()" class="w-full p-2 border border-amber-200 rounded-lg bg-amber-50/50 focus:outline-none focus:border-amber-600">
+                </div>
+            </div>
+
+            <div class="border rounded-lg overflow-hidden mb-4">
+                <table id="invoice-table" class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-amber-800 text-white text-xs uppercase">
+                            <th class="p-2">Item</th>
+                            <th class="p-2 text-center">Qty</th>
+                            <th class="p-2 text-right">Price</th>
+                            <th class="p-2 text-center print-hidden-element"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-tbody" class="text-sm">
+                        <tr id="empty-cart-msg"><td colspan="4" class="text-center py-6 text-gray-400">No items selected yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="space-y-2 border-t pt-3 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Subtotal:</span>
+                    <span id="bill-subtotal" class="font-semibold">₹0.00</span>
+                </div>
+                <div class="flex justify-between text-red-600 font-medium">
+                    <span>Special Discount (10%):</span>
+                    <span id="bill-discount">-₹0.00</span>
+                </div>
+                <div class="flex justify-between text-green-700">
+                    <span>Water Bottle (Complimentary):</span>
+                    <span class="font-semibold">FREE</span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>CGST (9%):</span>
+                    <span id="bill-cgst">₹0.00</span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>SGST (9%):</span>
+                    <span id="bill-sgst">₹0.00</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold text-amber-900 border-t pt-2">
+                    <span>Grand Total:</span>
+                    <span id="bill-total">₹0.00</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-6 print-hidden-element">
+                <button onclick="clearCart()" class="w-full bg-gray-100 text-gray-700 font-semibold py-2.5 rounded-lg hover:bg-gray-200 transition text-sm">Reset</button>
+                <button onclick="printInvoice()" class="w-full bg-amber-700 text-white font-semibold py-2.5 rounded-lg hover:bg-amber-800 shadow-md transition text-sm">Print Invoice</button>
+            </div>
+            
+            <p id="bill-print-footer" class="text-center text-[11px] mt-6 italic text-gray-500 border-t border-dashed pt-2">Thank You for Visiting! Splendid Hospitality Awaits You Again.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const hotelRooms = [
+            { no: "Suite 101", status: "Available" },
+            { no: "Suite 102", status: "Booked" },
+            { no: "Royal 201", status: "Cleaning" },
+            { no: "Royal 202", status: "Available" },
+            { no: "Royal 203", status: "Booked" },
+            { no: "Maharani 301", status: "Available" },
+            { no: "Maharani 302", status: "Cleaning" },
+            { no: "Prithvi 401", status: "Available" },
+            { no: "Prithvi 402", status: "Booked" },
+            { no: "Rajputana 501", status: "Available" }
+        ];
+
+        const baseDishes = [
+            { name: "Laal Maas (Royal Mutton)", cat: "Rajputana Special", price: 1250, img: "mutton" },
+            { name: "Dal Baati Churma Thali", cat: "Rajputana Special", price: 850, img: "indian-thali" },
+            { name: "Gatte Ki Sabzi", cat: "Rajputana Special", price: 380, img: "curry" },
+            { name: "Ker Sangri", cat: "Rajputana Special", price: 450, img: "vegetable" },
+            { name: "Shahi Paneer", cat: "Main Course", price: 420, img: "paneer" },
+            { name: "Kaju Kishmish Pulao", cat: "Main Course", price: 310, img: "rice" },
+            { name: "Murg Makhani (Butter Chicken)", cat: "Main Course", price: 690, img: "chicken" },
+            { name: "Awadhi Dum Biryani", cat: "Main Course", price: 750, img: "biryani" },
+            { name: "Tandoori Paneer Tikka", cat: "Starters", price: 320, img: "tikka" },
+            { name: "Galouti Kebab", cat: "Starters", price: 580, img: "kebab" },
+            { name: "Crispy Spring Rolls", cat: "Starters", price: 240, img: "spring-rolls" },
+            { name: "Malai Ghevar", cat: "Desserts", price: 350, img: "sweet" },
+            { name: "Shahi Tukda with Rabri", cat: "Desserts", price: 290, img: "dessert" },
+            { name: "Moong Dal Halwa", cat: "Desserts", price: 220, img: "halwa" },
+            { name: "Kesari Lassi", cat: "Beverages", price: 150, img: "lassi" },
+            { name: "Fresh Mint Mojito", cat: "Beverages", price: 180, img: "mojito" },
+            { name: "Himalayan Mineral Water", cat: "Beverages", price: 0, img: "water" }
+        ];
+
+        const recipes = [];
+        const prefixes = ["Royal", "Imperial", "Maharaja", "Jodhpuri", "Mewari", "Jaipuri", "Nawabi", "Darbar", "Shekhawati", "Premium"];
+        
+        let idCounter = 1;
+        for (let i = 0; i < 22; i++) {
+            baseDishes.forEach(dish => {
+                let currentPrefix = prefixes[i % prefixes.length];
+                let isWater = dish.price === 0;
+                
+                let finalName = isWater ? dish.name : `${currentPrefix} ${dish.name}`;
+                let calculatedPrice = isWater ? 0 : Math.min(1500, Math.max(100, dish.price + (i * 25)));
+                
+                if(!isWater && i > 0) finalName += ` (${i+1})`;
+
+                let imgUrl = `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150&auto=format&fit=crop&q=60`; 
+                if (dish.img === 'water') imgUrl = 'https://images.unsplash.com/photo-1608885898957-a599fb1b4666?w=150&auto=format&fit=crop&q=60';
+                if (dish.img === 'biryani') imgUrl = 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=150&auto=format&fit=crop&q=60';
+                if (dish.img === 'dessert' || dish.img === 'sweet') imgUrl = 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=150&auto=format&fit=crop&q=60';
+                if (dish.img === 'chicken' || dish.img === 'mutton') imgUrl = 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=150&auto=format&fit=crop&q=60';
+
+                if(!isWater || (isWater && idCounter === 1)) {
+                    recipes.push({
+                        id: idCounter++,
+                        name: finalName,
+                        category: dish.category || dish.cat,
+                        price: calculatedPrice,
+                        image: imgUrl
+                    });
+                }
+            });
+        }
+
+        let cart = {};
+
+        function renderRoomsDashboard() {
+            const container = document.getElementById('rooms-grid');
+            container.innerHTML = '';
+            
+            hotelRooms.forEach((room, index) => {
+                let bgStyle = "bg-green-100 border-green-400 text-green-800";
+                if(room.status === 'Booked') bgStyle = "bg-red-100 border-red-400 text-red-800";
+                if(room.status === 'Cleaning') bgStyle = "bg-yellow-100 border-yellow-400 text-yellow-800";
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border text-center font-semibold shadow-sm ${bgStyle}`;
+                card.innerHTML = `
+                    <div class="text-xs uppercase opacity-70">${room.no}</div>
+                    <select onchange="changeRoomStatus(${index}, this.value)" class="text-xs mt-1.5 p-1 rounded border bg-white text-gray-700 font-normal focus:outline-none">
+                        <option value="Available" ${room.status==='Available'?'selected':''}>🟢 Empty</option>
+                        <option value="Booked" ${room.status==='Booked'?'selected':''}>🔴 Booked</option>
+                        <option value="Cleaning" ${room.status==='Cleaning'?'selected':''}>🟡 Cleaning</option>
+                    </select>
+                `;
+                container.appendChild(card);
+            });
+            updateRoomDropdown();
+        }
+
+        function changeRoomStatus(index, newStatus) {
+            hotelRooms[index].status = newStatus;
+            renderRoomsDashboard();
+        }
+
+        function updateRoomDropdown() {
+            const dropdown = document.getElementById('room-number');
+            const currentSel = dropdown.value;
+            dropdown.innerHTML = '';
+            hotelRooms.forEach(r => {
+                let option = document.createElement('option');
+                option.value = r.no;
+                option.innerText = `${r.no} (${r.status})`;
+                if(r.no === currentSel) option.selected = true;
+                dropdown.appendChild(option);
+            });
+            updatePrintDetails();
+        }
+
+        function displayMenu(items) {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+            items.forEach(item => {
+                const isFree = item.price === 0;
+                const priceTag = isFree ? `<span class="text-green-600 font-bold">FREE</span>` : `<span class="text-amber-800 font-bold">₹${item.price}</span>`;
+                
+                const card = document.createElement('div');
+                card.className = "flex items-center bg-amber-50/50 p-3 rounded-lg border border-amber-100/80 hover:shadow-sm transition";
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-cover rounded-md mr-3 border border-amber-200">
+                    <div class="flex-grow">
+                        <h4 class="font-semibold text-xs text-gray-800 leading-tight">${item.name}</h4>
+                        <p class="text-[11px] text-gray-500 mt-0.5">${item.category}</p>
+                        <div class="text-xs mt-1">${priceTag}</div>
+                    </div>
+                    <button onclick="addToCart(${item.id})" class="bg-amber-800 hover:bg-amber-900 text-white text-xs px-2.5 py-1.5 rounded-md transition font-medium">+ Add</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterMenu(category) {
+            if (category === 'all') displayMenu(recipes);
+            else displayMenu(recipes.filter(r => r.category === category));
+        }
+
+        function addToCart(id) {
+            const item = recipes.find(r => r.id === id);
+            if (cart[id]) cart[id].qty++;
+            else cart[id] = { name: item.name, price: item.price, qty: 1 };
+            updateCartUI();
+        }
+
+        function removeFromCart(id) {
+            if (cart[id]) {
+                cart[id].qty--;
+                if (cart[id].qty <= 0) delete cart[id];
+            }
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = {};
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const tbody = document.getElementById('invoice-tbody');
+            tbody.innerHTML = '';
+            
+            let keys = Object.keys(cart);
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr id="empty-cart-msg"><td colspan="4" class="text-center py-6 text-gray-400">No items selected yet.</td></tr>`;
+                document.getElementById('bill-subtotal').innerText = '₹0.00';
+                document.getElementById('bill-discount').innerText = '-₹0.00';
+                document.getElementById('bill-cgst').innerText = '₹0.00';
+                document.getElementById('bill-sgst').innerText = '₹0.00';
+                document.getElementById('bill-total').innerText = '₹0.00';
+                return;
+            }
+
+            let subtotal = 0;
+            keys.forEach(id => {
+                let item = cart[id];
+                let itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+
+                let tr = document.createElement('tr');
+                tr.className = "border-b text-gray-700";
+                tr.innerHTML = `
+                    <td class="p-2 font-medium max-w-[140px] truncate">${item.name}</td>
+                    <td class="p-2 text-center font-bold">${item.qty}</td>
+                    <td class="p-2 text-right">₹${itemTotal}</td>
+                    <td class="p-2 text-center print-hidden-element">
+                        <button onclick="removeFromCart(${id})" class="text-red-500 hover:text-red-700 font-bold text-lg">&times;</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            let discount = subtotal * 0.10;
+            let discountedSubtotal = subtotal - discount;
+            let cgst = discountedSubtotal * 0.09;
+            let sgst = discountedSubtotal * 0.09;
+            let grandTotal = discountedSubtotal + cgst + sgst;
+
+            document.getElementById('bill-subtotal').innerText = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('bill-discount').innerText = `-₹${discount.toFixed(2)}`;
+            document.getElementById('bill-cgst').innerText = `₹${cgst.toFixed(2)}`;
+            document.getElementById('bill-sgst').innerText = `₹${sgst.toFixed(2)}`;
+            document.getElementById('bill-total').innerText = `₹${grandTotal.toFixed(2)}`;
+            
+            updatePrintDetails();
+        }
+
+        function updatePrintDetails() {
+            const roomNum = document.getElementById('room-number').value;
+            const guestName = document.getElementById('guest-name').value;
+            
+            document.getElementById('print-room-text').innerText = "Room No: " + roomNum;
+            document.getElementById('print-name-text').innerText = "Guest Name: " + guestName;
+            document.getElementById('print-date').innerText = "Date: " + new Date().toLocaleString('en-IN');
+        }
+
+        function printInvoice() {
+            if (Object.keys(cart).length === 0) {
+                alert("कृपया बिल प्रिंट करने के लिए कम से कम एक आइटम जोड़ें!");
+                return;
+            }
+            updatePrintDetails();
+            window.print();
+        }
+
+        window.onload = () => {
+            renderRoomsDashboard();
+            displayMenu(recipes);
+        };
+    </script>
+</body>
+</html>
